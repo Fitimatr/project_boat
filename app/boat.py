@@ -91,15 +91,8 @@ class Boat:
     def get_status(self) -> dict:
         '''Возвращает текущее состояние лодки'''
         self.status = {
-            "position": self.position,
-            "speed": self.speed,
-            "direction": self._direction_vector
+            'position': self.position,
+            'speed': self.speed,
+            'direction': self._direction_vector
         }
         return self.status
-
-
-boat = Boat(weight=150.0)  # Лодка + гребец = 150 кг
-boat.toggle_oars(dip=True)  # Опустить весла
-
-
-print(boat.movement(Direction.UP))
