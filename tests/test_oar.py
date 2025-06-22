@@ -41,29 +41,32 @@ def test_initialization():
         f'получено {right_oar.durability}')
 
 
-@pytest.mark.parametrize('side', ['left', 'right'])
-def test_dip_and_lift(side):
+@pytest.mark.parametrize('oar_side', ['left', 'right'])
+def test_dip_and_lift(oar_side):
     '''Тест опускания и поднятия весла'''
-    oar = Oar(side=side)
+    oar = Oar(side=oar_side)
     oar.dip()
-    assert oar.in_water, f'Весло {side} должно быть в воде после dip()'
+    assert oar.in_water, f'Весло {oar_side} должно быть в воде после dip()'
     oar.lift()
-    assert not oar.in_water, f'Весло {side} не должно быть в воде после lift()'
+    assert not oar.in_water, (
+        f'Весло {oar_side} не должно '
+        f'быть в воде после lift()'
+    )
 
 
-@pytest.mark.parametrize('side', ['left', 'right'])
-def test_row_without_dipping(side):
+@pytest.mark.parametrize('oar_side', ['left', 'right'])
+def test_row_without_dipping(oar_side):
     '''Тест гребли без опускания весла в воду'''
-    oar = Oar(side=side)
+    oar = Oar(side=oar_side)
     result = oar.row(10.0)
     assert result == 0.0, (
         f'Ожидалась нулевая сила гребка с поднятым веслом, получено {result}')
 
 
-@pytest.mark.parametrize('side', ['left', 'right'])
-def test_row_with_dipping(side):
-    '''Тест гребли с опущенным веслом'''
-    oar = Oar(side=side)
+@pytest.mark.parametrize('oar_side', ['left', 'right'])
+def test_row_with_dipping(oar_side):
+    '''Тест гребли с опущенным веслом (одним)'''
+    oar = Oar(side=oar_side)
     oar.dip()
     initial_durability = oar.durability
     force = 10.0
