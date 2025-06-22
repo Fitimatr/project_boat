@@ -2,12 +2,14 @@ from decimal import Decimal
 from enum import Enum
 
 from anchor import Anchor
-from constants import MAX_WEIGHT, BOAT_WEIGHT, MAX_SPEED, STRENGTH
+from constants import MAX_WEIGHT, BOAT_WEIGHT
+from constants import MAX_SPEED, STRENGTH, ANCHOR_SPEED_DROP
+
 from oar import Oar
 
 
 class Direction(Enum):
-    """Направления движения"""
+    '''Направления движения'''
     UP = (0, -1)
     DOWN = (0, 1)
     LEFT = (-1, 0)
@@ -31,24 +33,25 @@ class Boat:
 
     def movement(self, direction: Direction):
         if self.anchor.is_dropped:
-            self.speed = max(0, self.speed - 0.5)
-            return self.get_status
+            self.speed = max(0, self.speed - ANCHOR_SPEED_DROP)
 
         # Гребля: сила зависит от опущенных весел
-        l_force = self.left_oar.row(1.0) if self.left_oar.in_water else 0.0
-        r_force = self.right_oar.row(1.0) if self.right_oar.in_water else 0.0
+        # Весла будут изнашиваться постепенно
+        else:
+            l_force = self.left_oar.row(1.0) if self.left_oar.in_water else 0.0
+            r_force = self.right_oar.row(1.0) if self.right_oar.in_water else 0.0
 
-        # Расчет ускорения (чем больше сила - тем быстрее разгон)
-        force = Decimal(str(l_force + r_force))
-        acceleration = force * Decimal(self.strength) / Decimal(
-            self.weight + BOAT_WEIGHT)
+            # Расчет ускорения (чем больше сила - тем быстрее разгон)
+            force = Decimal(str(l_force + r_force))
+            acceleration = force * Decimal(self.strength) / Decimal(
+                self.weight + BOAT_WEIGHT)
 
-        # Обновление скорости и направления
-        self.speed = float(min(
-            Decimal(MAX_SPEED),
-            Decimal(self.speed) + acceleration
-        ))
-        self._direction_vector = direction.value
+            # Обновление скорости и направления
+            self.speed = float(min(
+                Decimal(MAX_SPEED),
+                Decimal(self.speed) + acceleration
+            ))
+            self._direction_vector = direction.value
 
         dx = Decimal(self.speed * self._direction_vector[0])
         dy = Decimal(self.speed * self._direction_vector[1])
@@ -57,8 +60,6 @@ class Boat:
             (self.position[0] + dx).quantize(Decimal('0.01')),
             (self.position[1] + dy).quantize(Decimal('0.01'))
         )
-        status = self.get_status()
-        return status
 
     def check_weight(self, additional_weight):
         if self.weight + additional_weight <= MAX_WEIGHT * 1.5:
@@ -67,11 +68,9 @@ class Boat:
             return False
 
     def add_weight(self, additional_weight):
-        if additional_weight < 0:
-            raise ValueError('Вес отрицательный')
         if self.check_weight(additional_weight):
             self.weight = self.weight + additional_weight
-            return True
+            return 'Вес успешно добавлен'
         else:
             return 'Перевес'
 
@@ -85,12 +84,12 @@ class Boat:
             return 'Вы пытаетесь снять больше чем есть в лодке'
 
     def toggle_oars(self, dip: bool) -> None:
-        """Опустить/поднять оба весла."""
+        '''Опустить/поднять оба весла.'''
         self.left_oar.dip() if dip else self.left_oar.lift()
         self.right_oar.dip() if dip else self.right_oar.lift()
 
     def get_status(self) -> dict:
-        """Возвращает текущее состояние лодки"""
+        '''Возвращает текущее состояние лодки'''
         self.status = {
             "position": self.position,
             "speed": self.speed,
