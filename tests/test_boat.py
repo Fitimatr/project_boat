@@ -28,19 +28,27 @@ def test_boat_initial_state(boat):
 def test_boat_movement(boat):
     '''Движение лодки при опущенных веслах из начального положения'''
     boat = Boat()
+    boat.toggle_oars(dip=True)
+
+    assert boat._direction_vector == (0, 0), (
+        'Начальный вектор направления должен быть (0, 0)'
+    )
+
     # Опускаем весла
     boat.toggle_oars(dip=True)
 
     # Движение вверх
-    status = boat.movement(Direction.UP)
-    assert status["direction"] == Direction.UP.value, (
-        f'Направление должно быть {Direction.UP.value}, '
-        f'получено {status['direction']}'
+    boat.movement(Direction.UP)
+
+    assert boat._direction_vector == Direction.UP.value, (
+        f'После движения вверх вектор должен быть {Direction.UP.value}, '
+        f'получено {boat._direction_vector}'
     )
-    assert status["speed"] > 0, 'Скорость должна увеличиться при движении'
-    assert status["position"][1] < Decimal('0.0'), (
-        f'Y-координата должна уменьшаться при движении вверх, '
-        f'получено {status['position'][1]}'
+
+    assert boat.speed > 0, 'Скорость должна увеличиться после движения'
+    assert boat.position[1] < Decimal('0'), (
+        f'Y-координата должна уменьшиться при движении вверх, '
+        f'текущая позиция: {boat.position}'
     )
 
 
@@ -69,14 +77,12 @@ def test_weight_management(boat):
     )
 
 
-def test_mass_movements():
+def test_mass_movements(boat):
     '''Проверка на длительное перемещение в одну сторону'''
-    boat = Boat()
     initial_position = boat.position
 
-    # Убедимся, что лодка может двигаться:
-    boat.left_oar.dip()  # Опускаем левое весло
-    boat.right_oar.dip()  # Опускаем правое весло
+    boat.left_oar.dip()
+    boat.right_oar.dip()
 
     # Выполняем 1000 движений в одном направлении
     for _ in range(1000):
@@ -108,7 +114,7 @@ def test_movement_with_dropped_anchor():
     boat.anchor.drop(10)  # Бросаем якорь на глубину 10
 
     # Проверяем начальное состояние
-    assert boat.anchor.is_dropped is True, "Якорь должен быть брошен"
+    assert boat.anchor.is_dropped is True, 'Якорь должен быть брошен'
     initial_speed = boat.speed
 
     # Пытаемся двигаться в разных направлениях
@@ -124,3 +130,57 @@ def test_movement_with_dropped_anchor():
         )
 
         initial_speed = boat.speed  # Обновляем для следующей итерации
+
+
+def test_direction_change(boat):
+    '''Тест смены направления движения лодки'''
+    boat.toggle_oars(dip=True)
+
+    initial_position = boat.position
+
+    boat.movement(Direction.UP)
+    assert boat._direction_vector == Direction.UP.value, (
+        f'Вектор направления должен быть {Direction.UP.value}, '
+        f'получено {boat._direction_vector}'
+    )
+    assert boat.position[1] < initial_position[1], (
+        f'При движении вверх Y должен уменьшаться. '
+        f'Было: {initial_position[1]}, '
+        f'стало: {boat.position[1]}'
+    )
+    up_position = boat.position
+
+    boat.movement(Direction.DOWN)
+    assert boat._direction_vector == Direction.DOWN.value, (
+        f'Вектор направления должен быть {Direction.DOWN.value}, '
+        f'получено {boat._direction_vector}'
+    )
+    assert boat.position[1] > up_position[1], (
+        f'При движении вниз Y должен увеличиваться. '
+        f'Было: {up_position[1]}, '
+        f'стало: {boat.position[1]}'
+    )
+    down_position = boat.position
+
+    boat.movement(Direction.LEFT)
+    assert boat._direction_vector == Direction.LEFT.value, (
+        f'Вектор направления должен быть {Direction.LEFT.value}, '
+        f'получено {boat._direction_vector}'
+    )
+    assert boat.position[0] < down_position[0], (
+        f'При движении влево X должен уменьшаться. '
+        f'Было: {down_position[0]}, '
+        f'стало: {boat.position[0]}'
+    )
+    left_position = boat.position
+
+    boat.movement(Direction.RIGHT)
+    assert boat._direction_vector == Direction.RIGHT.value, (
+        f'Вектор направления должен быть {Direction.RIGHT.value}, '
+        f'получено {boat._direction_vector}'
+    )
+    assert boat.position[0] > left_position[0], (
+        f'При движении вправо X должен увеличиваться. '
+        f'Было: {left_position[0]}, '
+        f'стало: {boat.position[0]}'
+    )

@@ -41,12 +41,10 @@ class Boat:
             l_force = self.left_oar.row(1.0) if self.left_oar.in_water else 0.0
             r_force = self.right_oar.row(1.0) if self.right_oar.in_water else 0.0
 
-            # Расчет ускорения (чем больше сила - тем быстрее разгон)
             force = Decimal(str(l_force + r_force))
             acceleration = force * Decimal(self.strength) / Decimal(
                 self.weight + BOAT_WEIGHT)
 
-            # Обновление скорости и направления
             self.speed = float(min(
                 Decimal(MAX_SPEED),
                 Decimal(self.speed) + acceleration
