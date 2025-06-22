@@ -8,7 +8,7 @@ class Oar:
         self.in_water = True
 
     def lift(self) -> None:
-        self.is_in_water = False
+        self.in_water = False
 
     def row(self, force: float) -> float:
         if not self.in_water or self.durability <= 0:

@@ -35,12 +35,13 @@ class Boat:
             return self.get_status
 
         # Гребля: сила зависит от опущенных весел
-        left_force = self.left_oar.row(1.0) if self.left_oar.in_water else 0.0
-        right_force = self.right_oar.row(1.0) if self.right_oar.in_water else 0.0
+        l_force = self.left_oar.row(1.0) if self.left_oar.in_water else 0.0
+        r_force = self.right_oar.row(1.0) if self.right_oar.in_water else 0.0
 
         # Расчет ускорения (чем больше сила - тем быстрее разгон)
-        force = Decimal(str(left_force + right_force))
-        acceleration = force * Decimal(self.strength) / Decimal(self.weight + BOAT_WEIGHT)
+        force = Decimal(str(l_force + r_force))
+        acceleration = force * Decimal(self.strength) / Decimal(
+            self.weight + BOAT_WEIGHT)
 
         # Обновление скорости и направления
         self.speed = float(min(
