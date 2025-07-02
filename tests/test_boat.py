@@ -15,7 +15,6 @@ def boat():
 
 def test_boat_initial_state(boat):
     '''Изначальное состояние лодки'''
-    boat = Boat()
     assert boat.speed == 0.0, 'Скорость лодки должна быть 0 при инициализации'
     assert boat.position == (Decimal('0.0'), Decimal('0.0')), (
         f'Начальная позиция должна быть (0, 0), получено {boat.position}'
@@ -27,17 +26,13 @@ def test_boat_initial_state(boat):
 
 def test_boat_movement(boat):
     '''Движение лодки при опущенных веслах из начального положения'''
-    boat = Boat()
     boat.toggle_oars(dip=True)
 
     assert boat._direction_vector == (0, 0), (
         'Начальный вектор направления должен быть (0, 0)'
     )
 
-    # Опускаем весла
     boat.toggle_oars(dip=True)
-
-    # Движение вверх
     boat.movement(Direction.UP)
 
     assert boat._direction_vector == Direction.UP.value, (
@@ -54,7 +49,6 @@ def test_boat_movement(boat):
 
 def test_weight_management(boat):
     '''Проверки на вес'''
-    boat = Boat()
     # Проверка добавления веса
     assert boat.add_weight(MAX_WEIGHT - boat.weight) == (
         'Вес успешно добавлен'
@@ -110,27 +104,22 @@ def test_mass_movements(boat):
 @pytest.mark.parametrize('test_direction',
                          [Direction.DOWN, Direction.LEFT,
                           Direction.RIGHT, Direction.UP])
-def test_movement_with_dropped_anchor(test_direction):
+def test_movement_with_dropped_anchor(boat, test_direction):
     '''Тест движения лодки с брошенным якорем'''
-    # Создаем лодку и бросаем якорь
-    boat = Boat()
-    boat.anchor.drop(10)  # Бросаем якорь на глубину 10
+    boat.anchor.drop(10)
 
-    # Проверяем начальное состояние
     assert boat.anchor.is_dropped is True, 'Якорь должен быть брошен'
     initial_speed = boat.speed
 
-    # Пытаемся двигаться в разных направлениях
     boat.movement(test_direction)
 
-    # Проверяем что скорость уменьшилась
     assert boat.speed == max(0, initial_speed - ANCHOR_SPEED_DROP), (
         f'Скорость должна уменьшаться на 0.5 при брошенном якоре. '
         f'Ожидалось: {max(0, initial_speed - ANCHOR_SPEED_DROP)}, '
         f'Получено: {boat.speed}'
     )
 
-    initial_speed = boat.speed  # Обновляем для следующей итерации
+    initial_speed = boat.speed
 
 
 def test_direction_change(boat):
