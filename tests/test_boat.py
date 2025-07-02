@@ -107,7 +107,10 @@ def test_mass_movements(boat):
     )
 
 
-def test_movement_with_dropped_anchor():
+@pytest.mark.parametrize('test_direction',
+                         [Direction.DOWN, Direction.LEFT,
+                          Direction.RIGHT, Direction.UP])
+def test_movement_with_dropped_anchor(test_direction):
     '''Тест движения лодки с брошенным якорем'''
     # Создаем лодку и бросаем якорь
     boat = Boat()
@@ -118,18 +121,16 @@ def test_movement_with_dropped_anchor():
     initial_speed = boat.speed
 
     # Пытаемся двигаться в разных направлениях
-    for direction in Direction:
-        # Выполняем движение
-        boat.movement(direction)
+    boat.movement(test_direction)
 
-        # Проверяем что скорость уменьшилась
-        assert boat.speed == max(0, initial_speed - ANCHOR_SPEED_DROP), (
-            f'Скорость должна уменьшаться на 0.5 при брошенном якоре. '
-            f'Ожидалось: {max(0, initial_speed - ANCHOR_SPEED_DROP)}, '
-            f'Получено: {boat.speed}'
-        )
+    # Проверяем что скорость уменьшилась
+    assert boat.speed == max(0, initial_speed - ANCHOR_SPEED_DROP), (
+        f'Скорость должна уменьшаться на 0.5 при брошенном якоре. '
+        f'Ожидалось: {max(0, initial_speed - ANCHOR_SPEED_DROP)}, '
+        f'Получено: {boat.speed}'
+    )
 
-        initial_speed = boat.speed  # Обновляем для следующей итерации
+    initial_speed = boat.speed  # Обновляем для следующей итерации
 
 
 def test_direction_change(boat):

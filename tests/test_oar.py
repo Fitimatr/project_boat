@@ -20,25 +20,16 @@ def any_oar(request):
     return Oar(side=request.param)
 
 
-def test_initialization():
+@pytest.mark.parametrize("side,expected_side,in_water,durability", [
+    ('left', 'left', False, 100.0),
+    ('right', 'right', False, 100.0),
+])
+def test_initialization(side, expected_side, in_water, durability):
     '''Тест инициализации весла'''
-    left_oar = Oar(side='left')
-    right_oar = Oar(side='right')
-
-    assert left_oar.side == 'left', (
-        f'Ожидалось side="left", получено {left_oar.side}')
-    assert right_oar.side == 'right', (
-        f'Ожидалось side="right", получено {right_oar.side}')
-    assert not left_oar.in_water, (
-        'Левое весло не должно быть в воде после инициализации')
-    assert not right_oar.in_water, (
-        'Правое весло не должно быть в воде после инициализации')
-    assert left_oar.durability == 100.0, (
-        f'Прочность левого весла должна быть 100%, '
-        f'получено {left_oar.durability}')
-    assert right_oar.durability == 100.0, (
-        f'Прочность правого весла должна быть 100%, '
-        f'получено {right_oar.durability}')
+    oar = Oar(side=side)
+    assert oar.side == expected_side
+    assert oar.in_water == in_water
+    assert oar.durability == durability
 
 
 @pytest.mark.parametrize('oar_side', ['left', 'right'])
